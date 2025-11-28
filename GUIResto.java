@@ -231,6 +231,7 @@ public class GUIResto extends JFrame{
             panelMenu.setVisible(false);
         } 
     }
+    // Fin todo
     
     private class OyenteAgregarItem implements ActionListener{
         public void actionPerformed(ActionEvent e){
@@ -291,4 +292,5 @@ public class GUIResto extends JFrame{
            
         } 
     }
+    // Fin todo
 }
