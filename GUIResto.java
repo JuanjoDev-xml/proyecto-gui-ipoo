@@ -88,12 +88,14 @@ public class GUIResto extends JFrame{
     private void inicializarPanelMenu(){
 
         //Crear paneles y establecer diagramado
-        
+        panelMenu = new JPanel();
+        panelMenu.setLayout(new GridLayout(1, resto.obtenerStockMenu().cantCombos())); // ??????
         //Crear botones, registrar oyentes e insertar en el panel de Menu      
         boton = new JButton[resto.obtenerStockMenu().cantCombos()];
         //Crear etiquetas e insertarlas en el panel de Menu       
-
+        etiqueta = new JLabel[resto.obtenerStockMenu().cantCombos()];
         //Al inicio, el panel del Menu no está visible
+        panelMenu.setVisible(false);
     }
     
     
@@ -122,12 +124,12 @@ public class GUIResto extends JFrame{
         botonOcuparMesa = new JButton("Ocupar");
         OyenteOcuparMesa ocuparMesa = new OyenteOcuparMesa();
         botonOcuparMesa.addActionListener(ocuparMesa);
-        panelOcuparDesocupar.add(botonOcuparMesa);
+        panelOcuparDesocupar.add(botonOcuparMesa); // ????????
 
         botonDesocuparMesa = new JButton("Desocupar");
         OyenteLiberarMesa liberarMesa = new OyenteLiberarMesa();
         botonOcuparMesa.addActionListener(liberarMesa);
-        panelOcuparDesocupar.add(botonDesocuparMesa);
+        panelOcuparDesocupar.add(botonDesocuparMesa); // ????????
         // Fin todo
 
 
@@ -185,20 +187,36 @@ public class GUIResto extends JFrame{
     private class OyenteMesa implements ActionListener{
         public void actionPerformed(ActionEvent e){
             //Obtener el número de la mesa seleccionada y la mesa del resto con dicho número
-            
+            numeroMesaSeleccionada = 0; // ????????????????????????????????????????
+            Mesa m = resto.obtenerMesa(numeroMesaSeleccionada);
             //Modificar la etiqueta con la mesa seleccionada 
-            
+            etiquetaMesaSeleccionada.setText("MesaSeleccionada: " + numeroMesaSeleccionada);
             //Modificar la etiqueta con el detalle parcial
-            
+            etiquetaDetallePedido.setText(m.generarDetalleParcial());
             //Hacer visible el panel de la Mesa
             panelMesa.setVisible(true);
             //Si la mesa no está ocupada entonces se oculta el panel de detalle, y se setea la visibilidad de los botones ocupar/desocupar mesa 
-            
+            if (!m.estaOcupada()){
+                panelDetalle.setVisible(false);
+                panelOcuparDesocupar.setVisible(true); // ???????
+                botonDesocuparMesa.setVisible(false);
+                botonOcuparMesa.setVisible(true);
+            }
             //Sino se muestra el panel de detalle, y si la mesa no alcanzó el máximo de pedidos posibles, se setea la visibilidad del botón para agregar
-            
-            //un nuevo item. Además se setea la visibilidad de los botones ocupar/desocupar mesa   
+            //un nuevo item. Además se setea la visibilidad de los botones ocupar/desocupar mesa
+            else{
+                panelDetalle.setVisible(true);
+                if (!m.alcanzoMaximoPedidos()){
+                    botonAgregarItem.setVisible(true);
+                }
+                botonOcuparMesa.setVisible(false);
+                botonDesocuparMesa.setVisible(true);
+            }   
         }
     }
+    // Fin todo
+
+
     
      /*TODO 
       * Completar los oyentes OyenteOcuparMesa, OyenteLiberarMesa y OyenteCombo para que 
@@ -209,8 +227,8 @@ public class GUIResto extends JFrame{
             
             //Obtener la mesa seleccionada y el combo seleccionado. Vender el combo seleccionado. Actualizar la etiqueta
             Mesa m = resto.obtenerMesa(numeroMesaSeleccionada);
-            String nombreCombo = e.getActionCommand();
-            Combo combo = resto.obtenerStockMenu().obtenerCombo(nombreCombo);
+            String nombreCombo = e.getActionCommand(); // ???????????????????
+            Combo combo = resto.obtenerStockMenu().obtenerCombo(nombreCombo); // ??????????????
             combo.vender();
             //Si luego de vender el combo no hay más stock, entonces se deshabilita el boton del combo correspondiente 
             if (combo.getCantidad() == 0){
@@ -248,21 +266,19 @@ public class GUIResto extends JFrame{
         public void actionPerformed(ActionEvent e){                           
         
             //Se ocupa la mesa seleccionada
-            System.out.println("numeroMesaSeleccionada:" + numeroMesaSeleccionada); // para ver si es correcto
-            if (!resto.obtenerMesa(numeroMesaSeleccionada).estaOcupada()){
-                resto.obtenerMesa(numeroMesaSeleccionada).ocupar();
+            resto.obtenerMesa(numeroMesaSeleccionada).ocupar();
             
-                //Se visibiliza el boton para agregar nuevos ítems
-                botonMesas[numeroMesaSeleccionada-1].setIcon(escalarIcono("imagenes/mesaOcupada2.png", 200, 200));
-                botonAgregarItem.setVisible(true);
-                //Se actualiza el detalle del pedido
-                etiquetaDetallePedido.setText(resto.obtenerMesa(numeroMesaSeleccionada).generarDetalleParcial());
-                //Se visibiliza el panel del detalle y se setea la visibilidad de los bootnes ocupar/desocupar mesa        
-                panelDetalle.setVisible(true);
-                botonOcuparMesa.setVisible(false);
-                botonDesocuparMesa.setVisible(true);
-                botonAgregarItem.setEnabled(resto.obtenerMesa(numeroMesaSeleccionada).obtenerPedido().cantCombos() < 10);
-            }
+            //Se visibiliza el boton para agregar nuevos ítems
+            botonMesas[numeroMesaSeleccionada-1].setIcon(escalarIcono("imagenes/mesaOcupada2.png", 200, 200));
+            botonAgregarItem.setVisible(true);
+            //Se actualiza el detalle del pedido
+            etiquetaDetallePedido.setText(resto.obtenerMesa(numeroMesaSeleccionada).generarDetalleParcial());
+            //Se visibiliza el panel del detalle y se setea la visibilidad de los bootnes ocupar/desocupar mesa        
+            panelDetalle.setVisible(true);
+            botonOcuparMesa.setVisible(false);
+            botonDesocuparMesa.setVisible(true);
+            botonAgregarItem.setEnabled(resto.obtenerMesa(numeroMesaSeleccionada).obtenerPedido().cantCombos() < 10);
+            
         } 
     }
     // Fin todo
@@ -294,3 +310,4 @@ public class GUIResto extends JFrame{
     }
     // Fin todo
 }
+
